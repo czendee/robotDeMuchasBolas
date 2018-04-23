@@ -1,0 +1,46 @@
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:map="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.youtochi.youtochiballrobotunit.MiMapaDetalleUnRobotActivity" >
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/mapafab02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="@dimen/fab_margin_controles"
+            android:src="@android:drawable/ic_menu_agenda" />
+
+    <!-- Boton flotante para controlar al robot Up-Down-Rigth-Left-->
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/mapafab01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="@dimen/fab_margin_controles"
+            android:src="@android:drawable/ic_menu_mylocation" />
+
+    <!-- Boton flotante para conectarse remotamente al robot-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/mapafab04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="@dimen/fab_margin_controles"
+        android:src="@android:drawable/ic_media_play" />
+
+    <!-- Boton flotante para controlar robot via Transimision Periscope Live-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/mapafab05"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin_controles"
+        android:src="@android:drawable/ic_menu_gallery" />
+
+    </fragment>
