@@ -27,6 +27,32 @@ int dataIn, m;
 
 int lbw[50], lfw[50], rbw[50], rfw[50]; // for storing positions/steps
 int index = 0;
+//TODO: define array for the role CURRENT
+int currentRoles[50]; // role CURRENT
+//TODO:define array for the tasks of a role CURRENT
+int currentRoleTasks[50][50]; // roleTasks CURRENT
+//TODO:define array for the steps of a task CURRENT
+int currentTaskStep[50][50]; // taskSteps CURRENT
+//TODO:define arrays for the positions of a step CURRENT
+int currentStepPosition[50][4]; // stepPosition CURRENT One for lbw, lfw, rbw, rfw , each wheel 
+//TODO: define array for the role OBTAINED FROM WEB MOST RECENT
+int webMostRecentRoles[50]; // role WEB MOST RECENT
+//TODO:define array for the tasks of a role  OBTAINED FROM WEB MOST RECENT
+int webMostRecentRoleTasks[50][50]; // roleTasks WEB MOST RECENT
+//TODO:define array for the steps of a task  OBTAINED FROM WEB MOST RECENT
+int webMostRecentTaskStep[50][50]; // taskSteps WEB MOST RECENT
+//TODO:define arrays for the positions of a step  OBTAINED FROM WEB MOST RECENT
+int webMostRecentStepPosition[50][4]; // stepPosition WEB MOST RECENT One for lbw, lfw, rbw, rfw , each wheel 
+
+//TODO: loop
+   int currentTask =1;//default Task
+   int currentRole =1;//default Role
+//TODO: logic to check if there is conection, then read all the most recent information from web API, and overwrite the 
+//TODO: logic to check if CURRENT is equal to OBTAINED FROM WEB MOST RECENT,  then continue with the task being executed
+//TODO: logic to check if CURRENT is NOT equal to OBTAINED FROM WEB MOST RECENT,then  complete the current task being executed, if any, then when it is completed set CURRENT arrays with the
+//         content of the arrays OBTAINED FROM WEB MOST RECENT
+
+
 
 void setup() {
   // Set initial seed values for the steppers
@@ -99,6 +125,28 @@ void loop() {
       wheelSpeed = dataIn * 10;
       Serial.println(wheelSpeed);
     }
+     
+    // YOUTOCHI:More Recent WEB: Role
+    if (dataIn == 30) {
+      m = 30;
+    }
+    if (dataIn == 31) {
+      m = 31;
+    }
+    if (dataIn == 32) {
+      m = 32;
+    }     
+     // YOUTOCHI:More Recent WEB: Task
+    if (dataIn == 40) {
+      m = 40;
+    }
+    if (dataIn == 41) {
+      m = 41;
+    }
+    if (dataIn == 42) {
+      m = 42;
+    }          
+
   }
   if (m == 4) {
     moveSidewaysLeft();
@@ -163,6 +211,7 @@ void loop() {
     }
   }
 
+   
   LeftFrontWheel.runSpeed();
   LeftBackWheel.runSpeed();
   RightFrontWheel.runSpeed();
@@ -269,6 +318,103 @@ void runSteps() {
   }
 }
 
+        
+//YOUTOCHi// runs steps for the current task and current role 
+void runStepsForTheTaskRole() {
+
+  for (int i = index - 1; i >= 0; i--) { // Run through all steps(index)
+    LeftFrontWheel.moveTo(webMostRecentStepPosition[currentRole][currentTask][i][0]); //lfw[i]); 
+    LeftFrontWheel.setSpeed(wheelSpeed);
+    LeftBackWheel.moveTo(webMostRecentStepPosition[currentRole][currentTask][i][1]); //lbw[i]);
+    LeftBackWheel.setSpeed(wheelSpeed);
+    RightFrontWheel.moveTo(webMostRecentStepPosition[currentRole][currentTask][i][2]);// rfw[i]);
+    RightFrontWheel.setSpeed(wheelSpeed);
+    RightBackWheel.moveTo(webMostRecentStepPosition[currentRole][currentTask][i][3]); //rbw[i]);
+    RightBackWheel.setSpeed(wheelSpeed);
+
+    while (LeftBackWheel.currentPosition() != webMostRecentStepPosition[currentRole][currentTask][i][1] &
+           LeftFrontWheel.currentPosition() != webMostRecentStepPosition[currentRole][currentTask][i][0]
+           & RightFrontWheel.currentPosition() != webMostRecentStepPosition[currentRole][currentTask][i][2] &
+           RightBackWheel.currentPosition() != webMostRecentStepPosition[currentRole][currentTask][i][3]) {
+    //while (LeftBackWheel.currentPosition() != lbw[i] & LeftFrontWheel.currentPosition() != lfw[i] & RightFrontWheel.currentPosition() != rfw[i] & RightBackWheel.currentPosition() != rbw[i]) {       
+      LeftFrontWheel.runSpeedToPosition();
+      LeftBackWheel.runSpeedToPosition();
+      RightFrontWheel.runSpeedToPosition();
+      RightBackWheel.runSpeedToPosition();
+
+      if (Bluetooth.available() > 0) {      // Check for incomding data
+        dataIn = Bluetooth.read();
+        if ( dataIn == 15) {           // If button "PAUSE" is pressed
+          while (dataIn != 14) {         // Wait until "RUN" is pressed again
+            if (Bluetooth.available() > 0) {
+              dataIn = Bluetooth.read();
+              if ( dataIn == 13) {
+                stopMoving();
+                break;
+              }
+            }
+          }
+        }//end if 15 
+        if (dataIn >= 16) {
+          wheelSpeed = dataIn * 10;
+          dataIn = 14;
+        }
+        if ( dataIn == 13) {
+          break;
+        }
+      // YOUTOCHI:More Recent WEB: Role
+       if (dataIn >= 30) {
+          if (dataIn == 30) {//new Role  in the WEB for the Robot 
+               flagNewRoles = 1;
+          }
+          if (dataIn == 31) {
+               flagNewRoles = 2;
+          }
+          if (dataIn == 32 {
+               flagNewRoles = 3;
+          }       
+       }     
+       // More Recent WEB: Task
+       if (dataIn >= 40) {
+          if (dataIn == 40) {//new Task in the WEB for the Robot 
+               flagNewTask = 1;
+          }
+          if (dataIn == 31) {
+               flagNewTask = 2;
+          }
+          if (dataIn == 32 {
+               flagNewTask = 3;
+          }       
+       }              
+       if (currentTask == flagNewTask {
+
+       }else{//mark that as soon as the current task is completed, it has to be changed
+            flagChangeTask=1;
+
+       }
+
+       if (currentRole == flagNewRole {
+
+       }else{//mark that as soon as the current task is completed, it has to be changed 
+          flagChangeRole=1;
+       }
+
+    // YOUTOCHI:END   ---More Recent WEB: Role
+         
+      }//end if blue
+    }//end while
+  }//end for
+           
+  if(flagChangeTask==1){
+     currentTask=flagNewTask;
+  }
+  if(flagChangeRole==1){
+     currentRole=flagNewRole;
+  }
+        
+        
+//YOUTOCHi   END
+        
 void moveForward() {
   LeftFrontWheel.setSpeed(wheelSpeed);
   LeftBackWheel.setSpeed(wheelSpeed);
