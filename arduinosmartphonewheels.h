@@ -80,6 +80,7 @@ void loop() {
     dataIn = Bluetooth.read();  // Read the data
 
     if(flagButtonsControls){ //here all the logic to handle the Buttons actions from the Mobile App
+       
        if (dataIn == 0) {
          m = 0;
        }
@@ -146,17 +147,30 @@ void loop() {
     }//end if flagButtonsControls
      
     if(flagReceiveNewData){ // START:  here all the logic to receive new data from the Mobile App
+          executeNewDataBeingReceived( dataIn);
+    }  //end flagReceiveNewData   
+     
+
+  }// if blue
+   
+  if(flagButtonsControls){ //here all the logic to handle the Buttons actions from the Mobile App   
+       executeByValueReceived (m);       
+  }//END if flagButtonsControls
+
+}
+
+void executeNewDataBeingReceived( int dataInPar) {
+          
            // YOUTOCHI:START  More Recent WEB: Role
-          if (dataIn == 1) {
-               m = 1;
+          if (dataInPar == 1) {               
              currentRole=1;           
           }
-          if (dataIn == 2) {
-               m = 2;
+          if (dataInPar == 2) {
+               
                currentRole=2;
           }
-          if (dataIn == 3) {
-               m = 3;
+          if (dataInPar == 3) {
+               
               currentRole=3;
           }     
            // YOUTOCHI:END More Recent WEB: Role
@@ -165,50 +179,48 @@ void loop() {
           flagButtonsControls = true;
           flagReceiveNewData=false;
           // YOUTOCHI:END set the flags back to use the buttons
-    }  //end flagReceiveNewData   
-     
 
-  }// if blue
-   
-  if(flagButtonsControls){ //here all the logic to handle the Buttons actions from the Mobile App   
-     
-        if (m == 4) {
+}//end function executeNewDataBeingReceived
+
+void executeByValueReceived(int mPar, int dataInPar) {
+
+        if (mPar== 4) {
           moveSidewaysLeft();
         }
-        if (m == 5) {
+        if (mPar == 5) {
           moveSidewaysRight();
         }
-        if (m == 2) {
+        if (mPar == 2) {
           moveForward();
         }
-        if (m == 7) {
+        if (mPar == 7) {
           moveBackward();
         }
-        if (m == 3) {
+        if (mPar == 3) {
           moveRightForward();
         }
-        if (m == 1) {
+        if (mPar == 1) {
           moveLeftForward();
         }
-        if (m == 8) {
+        if (mPar == 8) {
           moveRightBackward();
         }
-        if (m == 6) {
+        if (mPar == 6) {
           moveLeftBackward();
         }
-        if (m == 9) {
+        if (mPar == 9) {
           rotateLeft();
         }
-        if (m == 10) {
+        if (mPar == 10) {
           rotateRight();
         }
 
-        if (m == 0) {
+        if (mPar == 0) {
           stopMoving();
         }
         //Serial.println(dataIn);
         // If button "SAVE" is pressed
-        if (m == 12) {
+        if (mPar == 12) {
           if (index == 0) {
             LeftBackWheel.setCurrentPosition(0);
             LeftFrontWheel.setCurrentPosition(0);
@@ -220,12 +232,12 @@ void loop() {
           rbw[index] = RightBackWheel.currentPosition();
           rfw[index] = RightFrontWheel.currentPosition();
           index++;                        // Increase the array index
-          m = 0;
+          mPar = 0;
         }
 
-        if (m == 14) {  //command for RUN all the Tasks for the current Role 
+        if (mPar == 14) {  //command for RUN all the Tasks for the current Role 
           runSteps();
-          if (dataIn != 14) {
+          if (dataInPar != 14) {
             stopMoving();
             memset(lbw, 0, sizeof(lbw)); // Clear the array data to 0
             memset(lfw, 0, sizeof(lfw));
@@ -234,17 +246,7 @@ void loop() {
             index = 0;  // Index to 0
           }
         }
-        // YOUTOCHI:START  More Recent WEB: Role
-         if (dataIn == 30) {
-               currentRole=1; //Role : Mover
-         }
-         if (dataIn == 31) {   //Role: TrashBinner
-               currentRole=2;
-         }
-         if (dataIn == 32) {   //Role: Loader
-             currentRole=1;
-         }     
-         // YOUTOCHI:END More Recent WEB: Role
+
 
         LeftFrontWheel.runSpeed();
         LeftBackWheel.runSpeed();
@@ -263,10 +265,7 @@ void loop() {
           digitalWrite(led, LOW);
         }
 
-     
-  }//END if flagButtonsControls
-
-}
+}//end function executeByValueReceived
 
 void runSteps() {
   for (int i = index - 1; i >= 0; i--) { // Run through all steps(index)
