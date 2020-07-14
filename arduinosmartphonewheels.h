@@ -52,7 +52,10 @@ int webMostRecentStepPosition[50][4]; // stepPosition WEB MOST RECENT One for lb
 //TODO: logic to check if CURRENT is NOT equal to OBTAINED FROM WEB MOST RECENT,then  complete the current task being executed, if any, then when it is completed set CURRENT arrays with the
 //         content of the arrays OBTAINED FROM WEB MOST RECENT
 
-
+bool flagIndex =false;
+bool flagValue =false;
+bool flagReceiveNewData =false;
+int flagButtonsControls  =true;
 
 void setup() {
   // Set initial seed values for the steppers
@@ -76,158 +79,192 @@ void loop() {
   if (Bluetooth.available() > 0) {
     dataIn = Bluetooth.read();  // Read the data
 
-    if (dataIn == 0) {
-      m = 0;
-    }
-    if (dataIn == 1) {
-      m = 1;
-    }
-    if (dataIn == 2) {
-      m = 2;
-    }
-    if (dataIn == 3) {
-      m = 3;
-    }
-    if (dataIn == 4) {
-      m = 4;
-    }
-    if (dataIn == 5) {
-      m = 5;
-    }
-    if (dataIn == 6) {
-      m = 6;
-    }
-    if (dataIn == 7) {
-      m = 7;
-    }
-    if (dataIn == 8) {
-      m = 8;
+    if(flagButtonsControls){ //here all the logic to handle the Buttons actions from the Mobile App
+       if (dataIn == 0) {
+         m = 0;
+       }
+       if (dataIn == 1) {
+         m = 1;
+       }
+       if (dataIn == 2) {
+         m = 2;
+       }
+       if (dataIn == 3) {
+         m = 3;
+       }
+       if (dataIn == 4) {
+         m = 4;
+       }
+       if (dataIn == 5) {
+         m = 5;
+       }
+       if (dataIn == 6) {
+         m = 6;
+       }
+       if (dataIn == 7) {
+         m = 7;
+       }
+       if (dataIn == 8) {
+         m = 8;
 
-    }
-    if (dataIn == 9) {
-      m = 9;
-    }
-    if (dataIn == 10) {
-      m = 10;
-    }
-    if (dataIn == 11) {
-      m = 11;
-    }
+       }
+       if (dataIn == 9) {
+         m = 9;
+       }
+       if (dataIn == 10) {
+         m = 10;
+       }
+       if (dataIn == 11) {
+         m = 11;
+       }
 
-    if (dataIn == 12) {
-      m = 12;
-    }
-    if (dataIn == 14) {
-      m = 14;
-    }
-    // Set speed
-    if (dataIn >= 16) {
-      wheelSpeed = dataIn * 10;
-      Serial.println(wheelSpeed);
-    }
+       if (dataIn == 12) {
+         m = 12;
+       }
+       if (dataIn == 14) {  //command for RUN all the Tasks for the current Role 
+         m = 14;
+       }
+       // Set speed
+       if (dataIn >= 16) {
+         wheelSpeed = dataIn * 10;
+         Serial.println(wheelSpeed);
+       }
+       
+       // YOUTOCHI:START  FLAGS : Buttons OR Receive  New Data
+       if (dataIn == 35) { //Start sending New Data
+               m = 35;
+               flagReceiveNewData = true;  //now set the falg to accept data from the modible app
+               flagButtonsControls = false; //now set the flag to stop executing the action by the buttons from the mobile app
+        }  
+       if (dataIn == 36) { //Stop sending New Data /Start  excetuing the actions by the buttons from the mobile app
+               m = 36;
+               flagReceiveNewData = false;  //now set the falg to accept data from the modible app
+               flagButtonsControls = true; //now set the flag to stop executing the action by the buttons from the mobile app
+        }         
+       // YOUTOCHI:END  FLAGS : Buttons OR Receive  New Data
+       
+    }//end if flagButtonsControls
      
-    // YOUTOCHI:More Recent WEB: Role
-    if (dataIn == 30) {
-      m = 30;
-    }
-    if (dataIn == 31) {
-      m = 31;
-    }
-    if (dataIn == 32) {
-      m = 32;
-    }     
-     // YOUTOCHI:More Recent WEB: Task
-    if (dataIn == 40) {
-      m = 40;
-    }
-    if (dataIn == 41) {
-      m = 41;
-    }
-    if (dataIn == 42) {
-      m = 42;
-    }          
+    if(flagReceiveNewData){ // START:  here all the logic to receive new data from the Mobile App
+           // YOUTOCHI:START  More Recent WEB: Role
+          if (dataIn == 1) {
+               m = 1;
+             currentRole=1;           
+          }
+          if (dataIn == 2) {
+               m = 2;
+               currentRole=2;
+          }
+          if (dataIn == 3) {
+               m = 3;
+              currentRole=3;
+          }     
+           // YOUTOCHI:END More Recent WEB: Role
+       
+           // YOUTOCHI:START set the flags back to use the buttons
+          flagButtonsControls = true;
+          flagReceiveNewData=false;
+          // YOUTOCHI:END set the flags back to use the buttons
+    }  //end flagReceiveNewData   
+     
 
-  }
-  if (m == 4) {
-    moveSidewaysLeft();
-  }
-  if (m == 5) {
-    moveSidewaysRight();
-  }
-  if (m == 2) {
-    moveForward();
-  }
-  if (m == 7) {
-    moveBackward();
-  }
-  if (m == 3) {
-    moveRightForward();
-  }
-  if (m == 1) {
-    moveLeftForward();
-  }
-  if (m == 8) {
-    moveRightBackward();
-  }
-  if (m == 6) {
-    moveLeftBackward();
-  }
-  if (m == 9) {
-    rotateLeft();
-  }
-  if (m == 10) {
-    rotateRight();
-  }
-
-  if (m == 0) {
-    stopMoving();
-  }
-  //Serial.println(dataIn);
-  // If button "SAVE" is pressed
-  if (m == 12) {
-    if (index == 0) {
-      LeftBackWheel.setCurrentPosition(0);
-      LeftFrontWheel.setCurrentPosition(0);
-      RightBackWheel.setCurrentPosition(0);
-      RightFrontWheel.setCurrentPosition(0);
-    }
-    lbw[index] = LeftBackWheel.currentPosition();  // save position into the array
-    lfw[index] = LeftFrontWheel.currentPosition();
-    rbw[index] = RightBackWheel.currentPosition();
-    rfw[index] = RightFrontWheel.currentPosition();
-    index++;                        // Increase the array index
-    m = 0;
-  }
-
-  if (m == 14) {
-    runSteps();
-    if (dataIn != 14) {
-      stopMoving();
-      memset(lbw, 0, sizeof(lbw)); // Clear the array data to 0
-      memset(lfw, 0, sizeof(lfw));
-      memset(rbw, 0, sizeof(rbw));
-      memset(rfw, 0, sizeof(rfw));
-      index = 0;  // Index to 0
-    }
-  }
-
+  }// if blue
    
-  LeftFrontWheel.runSpeed();
-  LeftBackWheel.runSpeed();
-  RightFrontWheel.runSpeed();
-  RightBackWheel.runSpeed();
+  if(flagButtonsControls){ //here all the logic to handle the Buttons actions from the Mobile App   
+     
+        if (m == 4) {
+          moveSidewaysLeft();
+        }
+        if (m == 5) {
+          moveSidewaysRight();
+        }
+        if (m == 2) {
+          moveForward();
+        }
+        if (m == 7) {
+          moveBackward();
+        }
+        if (m == 3) {
+          moveRightForward();
+        }
+        if (m == 1) {
+          moveLeftForward();
+        }
+        if (m == 8) {
+          moveRightBackward();
+        }
+        if (m == 6) {
+          moveLeftBackward();
+        }
+        if (m == 9) {
+          rotateLeft();
+        }
+        if (m == 10) {
+          rotateRight();
+        }
 
-  // Monitor the battery voltage
-  int sensorValue = analogRead(A0);
-  float voltage = sensorValue * (5.0 / 1023.00) * 3; // Convert the reading values from 5v to suitable 12V i
-  //Serial.println(voltage);
-  // If voltage is below 11V turn on the LED
-  if (voltage < 11) {
-    digitalWrite(led, HIGH);
-  }
-  else {
-    digitalWrite(led, LOW);
-  }
+        if (m == 0) {
+          stopMoving();
+        }
+        //Serial.println(dataIn);
+        // If button "SAVE" is pressed
+        if (m == 12) {
+          if (index == 0) {
+            LeftBackWheel.setCurrentPosition(0);
+            LeftFrontWheel.setCurrentPosition(0);
+            RightBackWheel.setCurrentPosition(0);
+            RightFrontWheel.setCurrentPosition(0);
+          }
+          lbw[index] = LeftBackWheel.currentPosition();  // save position into the array
+          lfw[index] = LeftFrontWheel.currentPosition();
+          rbw[index] = RightBackWheel.currentPosition();
+          rfw[index] = RightFrontWheel.currentPosition();
+          index++;                        // Increase the array index
+          m = 0;
+        }
+
+        if (m == 14) {  //command for RUN all the Tasks for the current Role 
+          runSteps();
+          if (dataIn != 14) {
+            stopMoving();
+            memset(lbw, 0, sizeof(lbw)); // Clear the array data to 0
+            memset(lfw, 0, sizeof(lfw));
+            memset(rbw, 0, sizeof(rbw));
+            memset(rfw, 0, sizeof(rfw));
+            index = 0;  // Index to 0
+          }
+        }
+        // YOUTOCHI:START  More Recent WEB: Role
+         if (dataIn == 30) {
+               currentRole=1; //Role : Mover
+         }
+         if (dataIn == 31) {   //Role: TrashBinner
+               currentRole=2;
+         }
+         if (dataIn == 32) {   //Role: Loader
+             currentRole=1;
+         }     
+         // YOUTOCHI:END More Recent WEB: Role
+
+        LeftFrontWheel.runSpeed();
+        LeftBackWheel.runSpeed();
+        RightFrontWheel.runSpeed();
+        RightBackWheel.runSpeed();
+
+        // Monitor the battery voltage
+        int sensorValue = analogRead(A0);
+        float voltage = sensorValue * (5.0 / 1023.00) * 3; // Convert the reading values from 5v to suitable 12V i
+        //Serial.println(voltage);
+        // If voltage is below 11V turn on the LED
+        if (voltage < 11) {
+          digitalWrite(led, HIGH);
+        }
+        else {
+          digitalWrite(led, LOW);
+        }
+
+     
+  }//END if flagButtonsControls
 
 }
 
@@ -318,7 +355,167 @@ void runSteps() {
   }
 }
 
+// YOUTOCHI:START   ---Initialize Arrays: Role
+
+void setupRoles( indexTasksPar) {
+   //Roles
+   currentRoles[0]=1;
+   currentRoles[1]=2;
+   currentRoles[2]=3;
+      
+   //Tasks for each Role
+   currentRoleTasks[0][1] =1;
+   currentRoleTasks[0][2] =2;
+    
+   currentRoleTasks[1][1] =3;
+   currentRoleTasks[2][2] =4;
+   currentRoleTasks[2][3] =5;
+   currentRoleTasks[2][1] =6;
+   
+   //Steps for each Task
+   currentTaskStep[0][1]=1;
+   currentTaskStep[0][2]=2;
+   currentTaskStep[0][3]=3;
+   currentTaskStep[1][1]=1;
+   currentTaskStep[1][2]=4;
+   currentTaskStep[2][1]=1;
+   currentTaskStep[3][1]=2;
+   currentTaskStep[4][1]=2;
+   currentTaskStep[5][1]=1;
+   currentTaskStep[5][2]=2;
+   currentTaskStep[5][3]=5;
+   
+   
+   //Positions for each Step
+
+   currentStepPosition[0][1]=2345;
+   currentStepPosition[0][2]=2355;
+   currentStepPosition[0][0]=2365;
+   currentStepPosition[0][0]=2375;
+   
+   currentStepPosition[1][1]=2345;
+   currentStepPosition[1][2]=2355;
+   currentStepPosition[1][0]=2365;
+   currentStepPosition[1][0]=2375;
+   
+   currentStepPosition[2][1]=2345;
+   currentStepPosition[2][2]=2355;
+   currentStepPosition[2][0]=2365;
+   currentStepPosition[2][0]=2375;
+   
+   currentStepPosition[3][1]=2345;
+   currentStepPosition[3][2]=2355;
+   currentStepPosition[3][0]=2365;
+   currentStepPosition[3][0]=2375;   
+   
+   currentStepPosition[4][1]=2345;
+   currentStepPosition[4][2]=2355;
+   currentStepPosition[4][0]=2365;
+   currentStepPosition[4][0]=2375;   
+   
+   currentStepPosition[5][1]=2345;
+   currentStepPosition[5][2]=2355;
+   currentStepPosition[5][0]=2365;
+   currentStepPosition[5][0]=2375;   
+}
+
+// YOUTOCHI:START   ---More Recent WEB: Role
         
+void runStepsForTheTaskRole( int indexCurrentRole) {
+   
+   
+  int indexTasks =50;
+   for (int i = 1; i <= indexTasks - 1; i++) { { // Run through all Tasks(index)
+      int taskAExecujtar = currentRoleTasks[indexCurrentRole][i];
+      if(taskAExecujtar !=0){ // a task was set in the array element
+         runStepsForTask(taskAExecujtar);
+      }
+      
+   }
+}
+
+void runStepsForTask( int indexCurrentTask) {
+     int indexSteps =50;
+   for (int i = 1; i <= indexSteps - 1; i++) { { // Run through all Steps(index)
+      int stepAExecujtar = currentTaskStep[indexCurrentTask][i];
+      if(stepAExecujtar !=0){ // a stepk was set in the array element
+         runStepPositions(stepAExecujtar);
+      }
+      
+   }
+
+}
+
+void runStepPositions( int indexCurrentStep) {   
+    LeftFrontWheel.moveTo(currentStepPosition[indexCurrentStep][0]); //lfw[i]); 
+    LeftFrontWheel.setSpeed(wheelSpeed);
+    LeftBackWheel.moveTo(currentStepPosition[indexCurrentStep][1]); //lbw[i]);
+    LeftBackWheel.setSpeed(wheelSpeed);
+    RightFrontWheel.moveTo(currentStepPosition[indexCurrentStep][2]);// rfw[i]);
+    RightFrontWheel.setSpeed(wheelSpeed);
+    RightBackWheel.moveTo(currentStepPosition[indexCurrentStep][3]); //rbw[i]);
+    RightBackWheel.setSpeed(wheelSpeed);
+
+    while (LeftBackWheel.currentPosition() != currentStepPosition[indexCurrentStep][1] &
+           LeftFrontWheel.currentPosition() != currentStepPosition[indexCurrentStep][0]
+           & RightFrontWheel.currentPosition() != currentStepPosition[indexCurrentStepi][2] &
+           RightBackWheel.currentPosition() != currentStepPosition[indexCurrentStep][3]) {
+    
+      LeftFrontWheel.runSpeedToPosition();
+      LeftBackWheel.runSpeedToPosition();
+      RightFrontWheel.runSpeedToPosition();
+      RightBackWheel.runSpeedToPosition();
+
+      if (Bluetooth.available() > 0) {      // Check for incomding data
+        dataIn = Bluetooth.read();
+        if ( dataIn == 15) {           // If button "PAUSE" is pressed
+          while (dataIn != 14) {         // Wait until "RUN" is pressed again
+            if (Bluetooth.available() > 0) {
+              dataIn = Bluetooth.read();
+              if ( dataIn == 13) {
+                stopMoving();
+                break;
+              }
+            }
+          }
+        }//end if 15 
+        if (dataIn >= 16) {
+          wheelSpeed = dataIn * 10;
+          dataIn = 14;
+        }
+        if ( dataIn == 13) {
+          break;
+        }
+      // YOUTOCHI:More Recent WEB: Role
+       if (dataIn >= 30) {
+          if (dataIn == 30) {//new Role  in the WEB for the Robot 
+               flagNewRoles = 1;
+          }
+          if (dataIn == 31) {
+               flagNewRoles = 2;
+          }
+          if (dataIn == 32 {
+               flagNewRoles = 3;
+          }       
+       }     
+
+       if (currentRole == flagNewRole) {
+
+       }else{//mark that as soon as the current task is completed, it has to be changed 
+          flagChangeRole=1;
+       }
+
+         
+      }//end if blue
+    }//end while
+     if(flagChangeRole==1){
+        currentRole=flagNewRole;
+     }
+}
+
+// YOUTOCHI:END   ---More Recent WEB: Role
+
+/*           
 //YOUTOCHi// runs steps for the current task and current role 
 void runStepsForTheTaskRole() {
 
@@ -414,7 +611,7 @@ void runStepsForTheTaskRole() {
         
         
 //YOUTOCHi   END
-        
+*/        
 void moveForward() {
   LeftFrontWheel.setSpeed(wheelSpeed);
   LeftBackWheel.setSpeed(wheelSpeed);
